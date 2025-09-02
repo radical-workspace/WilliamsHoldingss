@@ -1,0 +1,32 @@
+import { NextResponse } from 'next/server'
+import { prisma } from '@/lib/prisma'
+import { isAdminRequest } from '@/lib/auth'
+
+export async function POST(req: Request, { params }: { params: { id: string } }) {
+  if (!isAdminRequest()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const id = params.id
+  const body = await req.json().catch(() => ({})) as { adminNote?: string }
+  const result = await prisma.$transaction(async (tx) => {
+    const wd = await tx.withdrawal.update({ where: { id }, data: { status: 'REJECTED', adminNote: body.adminNote } })
+    const bal = await tx.balance.findUnique({ where: { userId_asset_network: { userId: wd.userId, asset: wd.asset, network: wd.network } } })
+    if (!bal) throw new Error('Balance not found')
+    const updated = await tx.balance.update({
+      where: { id: bal.id },
+      data: { available: ((Number(bal.available) + Number(wd.amount)) as any), locked: ((Number(bal.locked) - Number(wd.amount)) as any) }
+    })
+    await tx.ledger.create({
+      data: {
+        userId: wd.userId,
+        asset: wd.asset,
+        network: wd.network,
+        amount: Number(wd.amount) as any,
+        type: 'WITHDRAWAL_RELEASE',
+        refType: 'Withdrawal',
+        refId: wd.id,
+        memo: body.adminNote ? body.adminNote : 'Admin rejected withdrawal; funds released.'
+      }
+    })
+    return { wd, bal: updated }
+  })
+  return NextResponse.json({ ok: true, withdrawal: result.wd })
+}

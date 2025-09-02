@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  passwordHash String?
+  isAdmin   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  balances  Balance[]
+  ledger    Ledger[]
+  deposits  Deposit[]
+  withdrawals Withdrawal[]
+  sessions  Session[]
+}
+
+model Balance {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  asset     String
+  network   String
+  available Decimal  @default(0)
+  locked    Decimal  @default(0)
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, asset, network])
+}
+
+model Ledger {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  asset     String
+  network   String
+  amount    Decimal
+  type      String   // "DEPOSIT" | "WITHDRAWAL" | "ADJUSTMENT"
+  refType   String?  // optional reference table
+  refId     String?  // optional reference id
+  memo      String?
+  createdAt DateTime @default(now())
+}
+
+model Deposit {
+  id             String        @id @default(cuid())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+  asset          String
+  network        String
+  amount         Decimal
+  sentToAddress  String
+  txProof        String?
+  status         String        @default("PENDING")
+  adminNote      String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+}
+
+model Withdrawal {
+  id                 String   @id @default(cuid())
+  user               User     @relation(fields: [userId], references: [id])
+  userId             String
+  asset              String
+  network            String
+  amount             Decimal
+  destinationAddress String
+  status             String   @default("PENDING")
+  adminNote          String?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Session {
+  sid      String  @id
+  user     User    @relation(fields: [userId], references: [id])
+  userId   String
+  createdAt DateTime @default(now())
+}
