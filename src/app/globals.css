@@ -3,3 +3,21 @@
 html, body { margin: 0; padding: 0; font-family: sans-serif; }
 .muted { color: #6b7280; } /* Tailwind's text-gray-500 hex value */
 
+/* Dashboard subtle background */
+.app-bg {
+	position: relative;
+}
+.app-bg::before {
+	content: "";
+	position: fixed;
+	inset: 0;
+		/* Background image with overlays for readability */
+		background:
+			linear-gradient(180deg, rgba(8,12,20,0.80), rgba(12,16,24,0.85)),
+			radial-gradient(1200px 600px at 20% 0%, rgba(14,165,165,0.18), rgba(14,165,165,0)),
+			radial-gradient(800px 400px at 80% 20%, rgba(99,102,241,0.14), rgba(99,102,241,0)),
+			url('/dashboard-bg.jpg') center/cover no-repeat;
+		opacity: 1;
+	z-index: -1;
+}
+

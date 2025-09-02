@@ -20,6 +20,10 @@ export default async function Dashboard() {
   const pendingDepositSum = pendingDeposits.reduce((acc, d) => acc + parseFloat(d.amount.toString()), 0)
   const pendingWithdrawalSum = pendingWithdrawals.reduce((acc, w) => acc + parseFloat(w.amount.toString()), 0)
   const fmt = (n: number) => n.toLocaleString(undefined, { maximumFractionDigits: 8 })
+  const fmtAsset = (asset: string, n: any) => {
+    const num = typeof n === 'number' ? n : parseFloat(String(n))
+    return asset === 'USD' ? `$${num.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : num.toLocaleString(undefined, { maximumFractionDigits: 8 })
+  }
   return (
     <Box>
       <Typography variant="h5" gutterBottom>Welcome, {dbUser.email}</Typography>
@@ -85,11 +89,11 @@ export default async function Dashboard() {
         </Box>
       </Box>
 
-  <Typography variant="h6" sx={{ mb: 1 }}>Your Balances</Typography>
+  <Typography variant="h6" sx={{ mb: 1, mt: 2 }}>Your Balances</Typography>
       {balances.length === 0 ? (
         <Typography color="text.secondary">No balances yet.</Typography>
       ) : (
-        <Table size="small">
+  <Table size="small" sx={{ borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
           <TableHead>
             <TableRow>
               <TableCell>Asset</TableCell>
@@ -104,8 +108,8 @@ export default async function Dashboard() {
               <TableRow key={b.id} hover>
                 <TableCell>{b.asset}</TableCell>
                 <TableCell>{b.network}</TableCell>
-                <TableCell>{b.available.toString()}</TableCell>
-                <TableCell>{b.locked.toString()}</TableCell>
+                <TableCell>{fmtAsset(b.asset, b.available)}</TableCell>
+                <TableCell>{fmtAsset(b.asset, b.locked)}</TableCell>
                 <TableCell>
                   <form action="/withdrawals/new">
                     <input name="asset" type="hidden" value={b.asset} />
@@ -143,7 +147,7 @@ export default async function Dashboard() {
                 <TableCell>{l.type}</TableCell>
                 <TableCell>{l.asset}</TableCell>
                 <TableCell>{l.network}</TableCell>
-                <TableCell align="right">{l.amount.toString()}</TableCell>
+                <TableCell align="right">{fmtAsset(l.asset as any, l.amount as any)}</TableCell>
                 <TableCell>{l.memo || '-'}</TableCell>
               </TableRow>
             ))}

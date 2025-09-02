@@ -1,6 +1,23 @@
 "use client"
 import { useEffect, useMemo, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import {
+  Box,
+  Paper,
+  Typography,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  TextField,
+  Button,
+  Stack,
+  Alert,
+  Divider,
+} from '@mui/material'
 
 function basicAddrOk(addr: string) {
   return /^(0x[a-fA-F0-9]{40}|bc1[a-zA-Z0-9]{25,48}|[13][a-km-zA-HJ-NP-Z1-9]{25,34})$/.test(addr)
@@ -61,91 +78,156 @@ export default function NewWithdrawalClient() {
   const rules: Record<string, { min?: number; regex?: Record<string, RegExp> }> = {
     BTC: { min: 0.00001, regex: { bitcoin: /^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,}$/ } },
     ETH: { min: 0.0001, regex: { ethereum: /^0x[a-fA-F0-9]{40}$/ } },
-    USDC: { min: 1 }
+    USDC: { min: 1 },
+    USD: { min: 1 },
   }
   const min = rules[asset]?.min ?? 0
   const netRegex = rules[asset]?.regex?.[network]
-  const addrOk = method === 'BANK'
-    ? (achName.trim().length > 1 && /^\d{9}$/.test(achRouting) && /^\d{5,}$/.test(achAccount))
-    : (netRegex ? netRegex.test(address) : basicAddrOk(address))
-  const ok = (method === 'BANK' ? true : (asset && network)) && amountNum >= Math.max(0.00000001, min) && amountNum <= available && addrOk
+  const isAchValid = achName.trim().length > 1 && /^\d{9}$/.test(achRouting) && /^\d{5,}$/.test(achAccount)
+  const isAddrValid = netRegex ? netRegex.test(address) : basicAddrOk(address)
+  const formValid = method === 'BANK' ? isAchValid : (Boolean(asset && network) && isAddrValid)
+  const amountValid = amountNum >= Math.max(0.00000001, min) && amountNum <= (available || 0)
 
   return (
-    <div>
-      <h2>New Withdrawal</h2>
-      <div className="mb-3 flex gap-3">
-        <label className="flex items-center gap-1">
-          <input type="radio" name="method" checked={method === 'CRYPTO'} onChange={() => setMethod('CRYPTO')} /> Crypto
-        </label>
-        <label className="flex items-center gap-1">
-          <input type="radio" name="method" checked={method === 'BANK'} onChange={() => setMethod('BANK')} /> Bank Transfer (US)
-        </label>
-      </div>
-      <form
-        onSubmit={async (e) => {
-          e.preventDefault()
-          setSubmitting(true)
-          setMessage('')
-          const payload = method === 'CRYPTO'
-            ? { asset, network, amount: amountNum, destination_address: address }
-            : { asset: 'USD', network: 'ACH', amount: amountNum, destination_address: `ACH:${achRouting}:${achAccount}:${achName}` }
-          const res = await fetch('/api/withdrawals', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-          })
-          const data = await res.json()
-          setSubmitting(false)
-          if (!res.ok) setMessage(data.error || 'Failed')
-          else setMessage('Submitted! Status PENDING until admin approves and sends off-chain.')
-        }}
-      >
-        {method === 'CRYPTO' ? (
-          <>
-            <label>
-              Asset
-              <select value={asset} onChange={(e) => { const a = e.target.value; setAsset(a); const n = items.find((i) => i.asset === a)?.network || ''; setNetwork(n) }}>
-                {assets.map((a) => (
-                  <option key={a} value={a}>{a}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Network
-              <select value={network} onChange={(e) => setNetwork(e.target.value)}>
-                {networks.map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Destination Address
-              <input value={address} onChange={(e) => setAddress(e.target.value)} required />
-            </label>
-          </>
-        ) : (
-          <>
-            <label>
-              Account Holder Name
-              <input value={achName} onChange={(e) => setAchName(e.target.value)} required />
-            </label>
-            <label>
-              Routing Number
-              <input value={achRouting} onChange={(e) => setAchRouting(e.target.value)} placeholder="9 digits" required />
-            </label>
-            <label>
-              Account Number
-              <input value={achAccount} onChange={(e) => setAchAccount(e.target.value)} placeholder="Checking/Savings" required />
-            </label>
-          </>
-        )}
-        <label>
-          Amount (Available: {available}{min ? `, Min: ${min}` : ''})
-          <input type="number" step="any" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-        </label>
-        <button disabled={!ok || submitting}>Submit</button>
-      </form>
-      {message && <p>{message}</p>}
-    </div>
+    <Paper elevation={0} sx={{ p: 3 }}>
+      <Typography variant="h5" sx={{ mb: 2 }}>New Withdrawal</Typography>
+
+      <FormControl sx={{ mb: 2 }}>
+        <RadioGroup row value={method} onChange={(e) => setMethod(e.target.value as any)}>
+          <FormControlLabel value="CRYPTO" control={<Radio />} label="Crypto" />
+          <FormControlLabel value="BANK" control={<Radio />} label="Bank Transfer (US)" />
+        </RadioGroup>
+      </FormControl>
+
+      <Box component="form" onSubmit={async (e) => {
+        e.preventDefault()
+        setSubmitting(true)
+        setMessage('')
+        const payload = method === 'CRYPTO'
+          ? { asset, network, amount: amountNum, destination_address: address }
+          : { asset: 'USD', network: 'ACH', amount: amountNum, destination_address: `ACH:${achRouting}:${achAccount}:${achName}` }
+        const res = await fetch('/api/withdrawals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        const data = await res.json()
+        setSubmitting(false)
+        if (!res.ok) setMessage(data.error || 'Submission failed')
+        else setMessage('Submitted! Status PENDING until admin approves and sends off-chain.')
+      }}>
+        <Stack spacing={2} sx={{ maxWidth: 600 }}>
+          {method === 'CRYPTO' ? (
+            <>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <FormControl fullWidth>
+                  <InputLabel id="asset-label">Asset</InputLabel>
+                  <Select
+                    labelId="asset-label"
+                    label="Asset"
+                    value={asset}
+                    onChange={(e) => {
+                      const a = e.target.value as string
+                      setAsset(a)
+                      const n = items.find((i) => i.asset === a)?.network || ''
+                      setNetwork(n)
+                    }}
+                  >
+                    {assets.map((a) => (
+                      <MenuItem key={a} value={a}>{a}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+                <FormControl fullWidth>
+                  <InputLabel id="network-label">Network</InputLabel>
+                  <Select
+                    labelId="network-label"
+                    label="Network"
+                    value={network}
+                    onChange={(e) => setNetwork(e.target.value as string)}
+                  >
+                    {networks.map((n) => (
+                      <MenuItem key={n} value={n}>{n}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Stack>
+              <TextField
+                label="Destination Address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                error={Boolean(address) && !isAddrValid}
+                helperText={Boolean(address) && !isAddrValid ? 'Enter a valid address for the selected network' : ' '}
+                fullWidth
+                required
+              />
+            </>
+          ) : (
+            <>
+              <TextField
+                label="Account Holder Name"
+                value={achName}
+                onChange={(e) => setAchName(e.target.value)}
+                error={Boolean(achName) && achName.trim().length <= 1}
+                helperText={Boolean(achName) && achName.trim().length <= 1 ? 'Enter full name' : ' '}
+                fullWidth
+                required
+              />
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                <TextField
+                  label="Routing Number"
+                  value={achRouting}
+                  onChange={(e) => setAchRouting(e.target.value.replace(/[^0-9]/g, '').slice(0, 9))}
+                  placeholder="9 digits"
+                  error={Boolean(achRouting) && !/^\d{9}$/.test(achRouting)}
+                  helperText={Boolean(achRouting) && !/^\d{9}$/.test(achRouting) ? '9 digits required' : ' '}
+                  fullWidth
+                  required
+                />
+                <TextField
+                  label="Account Number"
+                  value={achAccount}
+                  onChange={(e) => setAchAccount(e.target.value.replace(/[^0-9]/g, ''))}
+                  placeholder="Checking/Savings"
+                  error={Boolean(achAccount) && !/^\d{5,}$/.test(achAccount)}
+                  helperText={Boolean(achAccount) && !/^\d{5,}$/.test(achAccount) ? 'At least 5 digits' : ' '}
+                  fullWidth
+                  required
+                />
+              </Stack>
+            </>
+          )}
+
+          <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems="flex-end">
+            <TextField
+              label={`Amount (Available: ${available}${min ? `, Min: ${min}` : ''})`}
+              type="number"
+              inputProps={{ step: 'any', min: 0 }}
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              error={Boolean(amount) && !amountValid}
+              helperText={Boolean(amount) && !amountValid ? 'Enter a valid amount within available balance' : ' '}
+              fullWidth
+              required
+            />
+            <Button variant="outlined" onClick={() => setAmount(String(available || ''))}>Max</Button>
+          </Stack>
+
+          <Divider sx={{ my: 1 }} />
+
+          {message && <Alert severity={message.startsWith('Submitted') ? 'success' : 'error'}>{message}</Alert>}
+
+          <Box>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={submitting || !(formValid && amountValid)}
+            >
+              {submitting ? 'Submitting…' : 'Submit Withdrawal'}
+            </Button>
+          </Box>
+        </Stack>
+      </Box>
+    </Paper>
   )
 }
