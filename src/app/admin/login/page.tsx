@@ -21,7 +21,7 @@ export default function AdminLogin() {
           })
           setLoading(false)
           if (res.ok) {
-            window.location.href = '/admin/deposits'
+            window.location.href = '/admin'
           } else {
             const j = await res.json().catch(() => ({}))
             setMessage(j.error || 'Invalid admin secret')

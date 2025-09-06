@@ -6,13 +6,14 @@ import { ClientActions } from '@/components/ClientActions'
 
 export const dynamic = 'force-dynamic'
 
-export default async function AdminWithdrawals({ searchParams }: { searchParams?: { status?: string; q?: string; page?: string } }) {
+export default async function AdminWithdrawals({ searchParams }: { searchParams?: Promise<{ status?: string; q?: string; page?: string }> }) {
   if (!isAdminRequest()) {
     return <p>Unauthorized. Provide X-Admin-Secret header to access.</p>
   }
-  const status = searchParams?.status
-  const q = (searchParams?.q || '').trim()
-  const page = Math.max(parseInt(searchParams?.page || '1') || 1, 1)
+  const sp = (await searchParams) || {}
+  const status = sp.status
+  const q = (sp.q || '').trim()
+  const page = Math.max(parseInt(sp.page || '1') || 1, 1)
   const pageSize = 20
   const where: any = status ? { status } : {}
   if (q) where.OR = [

@@ -1,0 +1,58 @@
+name: Auto Format Main
+
+on:
+  push:
+    branches: [ main ]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+concurrency:
+  group: format-main
+  cancel-in-progress: false
+
+jobs:
+  format:
+    if: ${{ !contains(github.event.head_commit.message, '[skip-format]') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install deps
+        run: npm ci
+      - name: ESLint fix
+        run: npx eslint . --fix || true
+      - name: Rome apply fixes
+        run: npm run lint:rome:fix || true
+      - name: Rome format write
+        run: npm run format || true
+      - name: Detect changes
+        id: status
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+      - name: Commit & push
+        if: steps.status.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore: auto format [skip-format]"
+          git push
+      - name: Summary
+        run: |
+          if [ "${{ steps.status.outputs.changed }}" = "true" ]; then
+            echo "Formatted changes committed." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "No formatting changes needed." >> $GITHUB_STEP_SUMMARY

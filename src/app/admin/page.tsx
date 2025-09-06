@@ -20,6 +20,10 @@ export default function AdminHome() {
           <h3 className="font-medium mb-1">Withdrawals</h3>
           <p className="muted text-sm">Approve or reject withdrawal requests.</p>
         </Link>
+        <Link href="/admin/card-requests" className="rounded border bg-white p-4 hover:shadow-sm">
+          <h3 className="font-medium mb-1">Card Requests</h3>
+          <p className="muted text-sm">Approve or reject manual off-chain card requests.</p>
+        </Link>
         <Link href="/admin/balances" className="rounded border bg-white p-4 hover:shadow-sm">
           <h3 className="font-medium mb-1">Balances & Ledger</h3>
           <p className="muted text-sm">View system balances and recent ledger.</p>

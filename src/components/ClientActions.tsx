@@ -1,7 +1,15 @@
 "use client"
 import React from 'react'
 
-export function ClientActions({ id, type }: { id: string; type: 'deposit' | 'withdrawal' }) {
+type ActionType = 'deposit' | 'withdrawal' | 'card-requests'
+
+export function ClientActions({ id, type }: { id: string; type: ActionType }) {
+  function resourceBase(t: ActionType) {
+    // deposits and withdrawals follow the pluralized convention; card-requests is already plural
+    if (t === 'card-requests') return 'card-requests'
+    return `${t}s`
+  }
+
   async function act(path: string, message: string, withNote = false) {
     let init: RequestInit = { method: 'POST' }
     if (withNote) {
@@ -20,8 +28,8 @@ export function ClientActions({ id, type }: { id: string; type: 'deposit' | 'wit
   }
   return (
     <div className="flex gap-2">
-      <button className="border px-2 py-1" onClick={() => act(`/api/admin/${type}s/${id}/approve`, `${type} approved`, true)}>Approve</button>
-      <button className="border px-2 py-1" onClick={() => act(`/api/admin/${type}s/${id}/reject`, `${type} rejected`)}>Reject</button>
+      <button className="border px-2 py-1" onClick={() => act(`/api/admin/${resourceBase(type)}/${id}/approve`, `${type} approved`, true)}>Approve</button>
+      <button className="border px-2 py-1" onClick={() => act(`/api/admin/${resourceBase(type)}/${id}/reject`, `${type} rejected`)}>Reject</button>
     </div>
   )
 }
