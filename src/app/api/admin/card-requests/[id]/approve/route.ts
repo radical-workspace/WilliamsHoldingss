@@ -4,9 +4,9 @@ import { isAdminRequest } from '@/lib/auth'
 
 const CARD_REQUEST_FEE_USD = 1000;
 
-export async function POST(_req: Request, ctx: { params: Promise<{ id: string }> }) {
+export async function POST(_req: Request, { params }: { params: { id: string } }) {
   if (!isAdminRequest()) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  const { id } = await ctx.params
+  const { id } = params
   const result = await prisma.$transaction(async (tx) => {
     const cr = await tx.cardRequest.update({ where: { id }, data: { status: 'APPROVED' } })
     // deduct card fee USD available and add ledger entry
