@@ -1,13 +1,12 @@
 {
-  "installCommand": "npm ci",
-  "buildCommand": "npm run vercel:build",
-  "framework": "nextjs",
-  "regions": ["gru1"],
-  "functions": {
-    "api/**": {
-      "memory": 512,
-      "maxDuration": 10
-    }
-  }
+	"installCommand": "npm ci",
+	"buildCommand": "npm run vercel:build",
+	"framework": "nextjs",
+	"regions": ["gru1"],
+	"functions": {
+		"api/**": {
+			"memory": 512,
+			"maxDuration": 10
+		}
+	}
 }
-

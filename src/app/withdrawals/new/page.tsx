@@ -1,12 +1,12 @@
-import { Suspense } from 'react'
-import NewWithdrawalClient from './NewWithdrawalClient'
+import { Suspense } from "react";
+import NewWithdrawalClient from "./NewWithdrawalClient";
 
-export const dynamic = 'force-dynamic'
+export const dynamic = "force-dynamic";
 
 export default function NewWithdrawal() {
-  return (
-    <Suspense fallback={<div>Loading…</div>}>
-      <NewWithdrawalClient />
-    </Suspense>
-  )
+	return (
+		<Suspense fallback={<div>Loading…</div>}>
+			<NewWithdrawalClient />
+		</Suspense>
+	);
 }
