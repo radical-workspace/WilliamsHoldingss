@@ -2,6 +2,7 @@
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getCurrentUser } from '@/lib/auth'
+import { CARD_REQUEST_FEE_USD } from '@/lib/constants'
 
 // POST /api/card-requests  { cardType: 'VIRTUAL' | 'PHYSICAL', userId?: string }
 export async function POST(req: Request) {
@@ -46,7 +47,7 @@ export async function POST(req: Request) {
     });
   }
 
-  // price in USD: 1000
+  // Card issuance price requirement
   const bal = await prisma.balance.findUnique({ 
     where: { 
       userId_asset_network: { 
@@ -58,8 +59,8 @@ export async function POST(req: Request) {
   });
   
   const available = Number(bal?.available || 0);
-  if (available < 1000) {
-    return NextResponse.json({ error: 'Insufficient USD balance ($1,000 required)' }, { status: 400 });
+  if (available < CARD_REQUEST_FEE_USD) {
+    return NextResponse.json({ error: `Insufficient USD balance ($${CARD_REQUEST_FEE_USD.toLocaleString()} required)` }, { status: 400 });
   }
 
   const cr = await prisma.cardRequest.create({ 

@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { Box, Typography, Button } from "@mui/material";
+import { CARD_REQUEST_FEE_USD } from '@/lib/constants'
 
 export default function ManualCardSection({ userId, usdBalance }: { userId: string, usdBalance: number }) {
   const [status, setStatus] = useState<string | null>(null);
@@ -9,8 +10,8 @@ export default function ManualCardSection({ userId, usdBalance }: { userId: stri
   const handleRequest = async () => {
     setStatus(null);
     setLoading(true);
-    if (usdBalance < 1000) {
-      setStatus("Insufficient balance. You need at least $1,000 to request a card.");
+    if (usdBalance < CARD_REQUEST_FEE_USD) {
+      setStatus(`Insufficient balance. You need at least $${CARD_REQUEST_FEE_USD.toLocaleString()} to request a card.`);
       setLoading(false);
       return;
     }
@@ -42,7 +43,7 @@ export default function ManualCardSection({ userId, usdBalance }: { userId: stri
           <b>How to get your card:</b>
         </Typography>
         <ol style={{ paddingLeft: 20 }}>
-          <li>Ensure you have at least <b>$1,000</b> available in your USD balance.</li>
+          <li>Ensure you have at least <b>${CARD_REQUEST_FEE_USD.toLocaleString()}</b> available in your USD balance.</li>
           <li>Click the button below to request your card.</li>
           <li>Your request will be reviewed by an admin. If approved, you’ll receive further instructions by email.</li>
         </ol>
