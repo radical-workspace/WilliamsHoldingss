@@ -5,8 +5,10 @@ import { getCurrentUser } from '@/lib/auth'
 // Attempt to use Vercel Blob in production when token is available
 let put: undefined | ((name: string, body: any, opts?: any) => Promise<{ url: string }>)
 try {
-  // @ts-ignore - optional dependency
-  ;({ put } = await import('@vercel/blob'))
+  const vercelBlob = await import('@vercel/blob') as { put?: (name: string, body: any, opts?: any) => Promise<{ url: string }> }
+  if (typeof vercelBlob.put === 'function') {
+    put = vercelBlob.put
+  }
 } catch {
   // no-op; dev fallback below
 }
