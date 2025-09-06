@@ -1,5 +1,4 @@
 name: Auto Format Main
-
 on:
   push:
     branches: [ main ]
