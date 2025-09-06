@@ -7,6 +7,8 @@ import Toolbar from '@mui/material/Toolbar'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import Typography from '@mui/material/Typography'
+import ThemeToggle from '@/components/ThemeToggle'
+import AvatarMenu from '@/components/AvatarMenu'
 
 export default function AdminLayout({ children }: { children: ReactNode }) {
   return (
@@ -19,9 +21,16 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
             </Link>
             Admin
           </Typography>
+          <Button href="/admin" component={Link as any}>Dashboard</Button>
           <Button href="/admin/deposits" component={Link as any}>Deposits</Button>
           <Button href="/admin/withdrawals" component={Link as any}>Withdrawals</Button>
           <Button href="/admin/balances" component={Link as any}>Balances</Button>
+          <Button href="/admin/card-requests" component={Link as any}>Card Requests</Button>
+          <ThemeToggle />
+          <AvatarMenu />
+          <form method="post" action="/api/admin/signout" style={{ marginLeft: 8 }}>
+            <Button type="submit" color="inherit">Sign Out</Button>
+          </form>
         </Toolbar>
       </AppBar>
   <Container maxWidth="lg" sx={{ py: 4 }} className="app-bg">

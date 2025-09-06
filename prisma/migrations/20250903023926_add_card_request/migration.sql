@@ -1,0 +1,13 @@
+-- CreateTable
+CREATE TABLE "CardRequest" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "userId" TEXT NOT NULL,
+    "brand" TEXT NOT NULL DEFAULT 'VISA',
+    "type" TEXT NOT NULL,
+    "priceCents" INTEGER NOT NULL DEFAULT 100000,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "adminNote" TEXT,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    CONSTRAINT "CardRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);

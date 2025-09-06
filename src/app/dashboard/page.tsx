@@ -3,6 +3,9 @@ import { getCurrentUser } from '@/lib/auth'
 import Link from 'next/link'
 import { getReceivingAddresses } from '@/lib/settings'
 import { Card, CardContent, CardHeader, Button, Chip, Typography, Table, TableBody, TableCell, TableHead, TableRow, Box, Divider } from '@mui/material'
+import Image from 'next/image'
+import ManualCardSection from '@/components/ManualCardSection'
+import DashboardStat from '@/components/DashboardStat'
 
 export default async function Dashboard() {
   const user = await getCurrentUser()
@@ -29,30 +32,10 @@ export default async function Dashboard() {
       <Typography variant="h5" gutterBottom>Welcome, {dbUser.email}</Typography>
 
       <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 2, mb: 3 }}>
-        <Card variant="outlined">
-          <CardHeader title="Total Available" subheader="Across all assets" />
-          <CardContent>
-            <Typography variant="h4">{fmt(totalAvailable)}</Typography>
-          </CardContent>
-        </Card>
-        <Card variant="outlined">
-          <CardHeader title="Locked" subheader="In holds/withdrawals" />
-          <CardContent>
-            <Typography variant="h4">{fmt(totalLocked)}</Typography>
-          </CardContent>
-        </Card>
-        <Card variant="outlined">
-          <CardHeader title="Pending Deposits" subheader={`${pendingDeposits.length} requests`} />
-          <CardContent>
-            <Typography variant="h4">{fmt(pendingDepositSum)}</Typography>
-          </CardContent>
-        </Card>
-        <Card variant="outlined">
-          <CardHeader title="Pending Withdrawals" subheader={`${pendingWithdrawals.length} requests`} />
-          <CardContent>
-            <Typography variant="h4">{fmt(pendingWithdrawalSum)}</Typography>
-          </CardContent>
-        </Card>
+        <DashboardStat title="Total Available" sub={"Across all assets"} value={fmt(totalAvailable)} targetId="balances" color="primary" />
+        <DashboardStat title="Locked" sub={"In holds/withdrawals"} value={fmt(totalLocked)} targetId="balances" color="warning" />
+        <DashboardStat title="Pending Deposits" sub={`${pendingDeposits.length} requests`} value={fmt(pendingDepositSum)} targetId="history" color="info" />
+        <DashboardStat title="Pending Withdrawals" sub={`${pendingWithdrawals.length} requests`} value={fmt(pendingWithdrawalSum)} targetId="history" color="info" />
       </Box>
   <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(3, 1fr)' }, gap: 2, mb: 3 }}>
     <Box>
@@ -64,7 +47,9 @@ export default async function Dashboard() {
                   <Chip key={a} label={a} />
                 )) : <Typography variant="body2" color="text.secondary">No methods configured</Typography>}
               </Box>
-  <Button LinkComponent={Link as any} href="/deposits/new" variant="contained">New Deposit</Button>
+              <Button LinkComponent={Link as any} href="/deposits/new" variant="contained" color="success" size="large" sx={{ mt: 1 }}>
+                <b>Deposit Funds</b>
+              </Button>
             </CardContent>
           </Card>
     </Box>
@@ -72,7 +57,9 @@ export default async function Dashboard() {
           <Card variant="outlined">
             <CardHeader title="Withdraw" subheader="Request a withdrawal to your address" />
             <CardContent>
-  <Button LinkComponent={Link as any} href="/withdrawals/new" variant="contained">New Withdrawal</Button>
+              <Button LinkComponent={Link as any} href="/withdrawals/new" variant="contained" color="warning" size="large" sx={{ mt: 1 }}>
+                <b>Withdraw Funds</b>
+              </Button>
             </CardContent>
           </Card>
     </Box>
@@ -81,15 +68,28 @@ export default async function Dashboard() {
             <CardHeader title="History" />
             <CardContent>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-  <Button LinkComponent={Link as any} href="/deposits">Your Deposits</Button>
-  <Button LinkComponent={Link as any} href="/withdrawals">Your Withdrawals</Button>
+                <Button LinkComponent={Link as any} href="/deposits" color="info" variant="outlined" sx={{ fontWeight: 'bold' }}>View Deposit History</Button>
+                <Button LinkComponent={Link as any} href="/withdrawals" color="info" variant="outlined" sx={{ fontWeight: 'bold' }}>View Withdrawal History</Button>
               </Box>
             </CardContent>
           </Card>
         </Box>
       </Box>
 
-  <Typography variant="h6" sx={{ mb: 1, mt: 2 }}>Your Balances</Typography>
+    {/* Manual off-chain card preview */}
+    <Card variant="outlined" sx={{ mb: 3 }} id="card">
+        <CardHeader title="Williams Holdings Visa Card" subheader="Get your card in a few easy steps" />
+        <CardContent>
+          <ManualCardSection userId={dbUser.id} usdBalance={
+            (() => {
+              const b = balances.find(b => b.asset === 'USD')
+              return b ? parseFloat(String(b.available)) : 0
+            })()
+          } />
+        </CardContent>
+      </Card>
+
+  <Typography variant="h6" sx={{ mb: 1, mt: 2 }} id="balances">Your Balances</Typography>
       {balances.length === 0 ? (
         <Typography color="text.secondary">No balances yet.</Typography>
       ) : (
@@ -124,8 +124,8 @@ export default async function Dashboard() {
         </Table>
       )}
 
-      <Divider sx={{ my: 3 }} />
-      <Typography variant="h6" sx={{ mb: 1 }}>Recent Activity</Typography>
+  <Divider sx={{ my: 3 }} />
+  <Typography variant="h6" sx={{ mb: 1 }} id="history">Recent Activity</Typography>
       {recentLedger.length === 0 ? (
         <Typography color="text.secondary">No recent activity.</Typography>
       ) : (
