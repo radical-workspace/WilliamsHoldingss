@@ -9,6 +9,20 @@ try {
   if (typeof vercelBlob.put === 'function') {
     put = vercelBlob.put
   }
+    put = vercelBlob.put
+  }
+    put = vercelBlob.put
+  }
+    put = vercelBlob.put
+  }
+    put = vercelBlob.put
+  }
+    put = vercelBlob.put
+  }
+    put = vercelBlob.put
+  }
+    put = vercelBlob.put
+  }
 } catch {
   // optional dependency not available locally
 }
