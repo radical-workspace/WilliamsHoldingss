@@ -1,9 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 
 export async function POST(
-	_req: Request,
+	_req: NextRequest,
 	{ params }: { params: { id: string } },
 ) {
 	if (!isAdminRequest())
