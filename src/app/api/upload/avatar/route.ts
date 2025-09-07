@@ -3,9 +3,11 @@ import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
 // Optional Vercel Blob support (only if dependency + token available)
-let put: undefined | ((name: string, body: any, opts?: any) => Promise<{ url: string }>);
+let put:
+	| undefined
+	| ((name: string, body: any, opts?: any) => Promise<{ url: string }>);
 try {
-	const mod = (await import("@vercel/blob").catch(() => ({} as any))) as {
+	const mod = (await import("@vercel/blob").catch(() => ({}) as any)) as {
 		put?: (name: string, body: any, opts?: any) => Promise<{ url: string }>;
 	};
 	if (typeof mod.put === "function") {

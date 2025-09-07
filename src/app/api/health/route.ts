@@ -3,5 +3,5 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 
 export async function GET() {
-  return NextResponse.json({ status: "ok", time: new Date().toISOString() });
+	return NextResponse.json({ status: "ok", time: new Date().toISOString() });
 }
