@@ -6,6 +6,10 @@ export async function POST(req: Request) {
 		return NextResponse.json({ error: "Invalid secret" }, { status: 401 });
 	}
 	const res = NextResponse.json({ ok: true });
-	res.cookies.set("admin", "true", { httpOnly: false, path: "/", sameSite: "lax" });
+	res.cookies.set("admin", "true", {
+		httpOnly: false,
+		path: "/",
+		sameSite: "lax",
+	});
 	return res;
 }
