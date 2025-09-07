@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 
-export async function POST(
-	_req: NextRequest,
-	context: any,
-) {
+export async function POST(_req: NextRequest, context: any) {
 	const { params } = context as { params: { id: string } };
 	if (!isAdminRequest())
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -3,10 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { isAdminRequest } from "@/lib/auth";
 import { CARD_REQUEST_FEE_USD } from "@/lib/constants";
 
-export async function POST(
-	_req: NextRequest,
-	context: any,
-) {
+export async function POST(_req: NextRequest, context: any) {
 	const { params } = context as { params: { id: string } };
 	if (!isAdminRequest())
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
