@@ -2,32 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getCurrentUser } from "@/lib/auth";
 
-// Attempt to use Vercel Blob in production when token is available
-let put:
-	| undefined
-	| ((name: string, body: any, opts?: any) => Promise<{ url: string }>);
+// Optional Vercel Blob support (only if dependency + token available)
+let put: undefined | ((name: string, body: any, opts?: any) => Promise<{ url: string }>);
 try {
-  const vercelBlob = await import('@vercel/blob') as { put?: (name: string, body: any, opts?: any) => Promise<{ url: string }> }
-  if (typeof vercelBlob.put === 'function') {
-    put = vercelBlob.put
-  }
-    put = vercelBlob.put
-  }
-put = vercelBlob.put;
-}
-    put = vercelBlob.put
-  }
-    put = vercelBlob.put
-  }
-    put = vercelBlob.put
-  }
-    put = vercelBlob.put
-  }
-    put = vercelBlob.put
-  }
-} catch
-{
-	// optional dependency not available locally
+	const mod = (await import("@vercel/blob").catch(() => ({} as any))) as {
+		put?: (name: string, body: any, opts?: any) => Promise<{ url: string }>;
+	};
+	if (typeof mod.put === "function") {
+		put = mod.put;
+	}
+} catch {
+	// Silently ignore if not installed (local dev fallback will be used)
 }
 
 export const runtime = "nodejs";
@@ -53,13 +38,12 @@ export async function POST(req: NextRequest) {
 			.toString(36)
 			.slice(2)}.${ext}`;
 
-		// Use Vercel Blob if available
+		// Use Vercel Blob if available and token configured
 		if (put && process.env.BLOB_READ_WRITE_TOKEN) {
 			const res = await put(`avatars/${baseName}`, file, {
 				access: "public",
 				addRandomSuffix: false,
 			});
-			// Persist to current user
 			try {
 				const user = await getCurrentUser();
 				await prisma.user.update({
