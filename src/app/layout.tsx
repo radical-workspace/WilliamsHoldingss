@@ -4,7 +4,7 @@ import Image from "next/image";
 import BrandLogo from "@/components/BrandLogo";
 import type { Metadata } from "next";
 import { FlashClient } from "@/components/FlashClient";
-import { cookies } from "next/headers";
+import { headers } from "next/headers";
 import { ReactNode } from "react";
 import ThemeRegistry from "@/components/ThemeRegistry";
 import Container from "@mui/material/Container";
@@ -21,8 +21,13 @@ export const metadata: Metadata = {
 export default async function RootLayout({
 	children,
 }: { children: ReactNode }) {
-	const cookieStore = cookies();
-	const userEmail = (await cookieStore).get("userEmail")?.value;
+	// Fallback to reading cookie manually from header to avoid build-time cookie store mutation typing issues
+	const h = await headers();
+	const cookieHeader = h.get("cookie") || "";
+	const userEmail = cookieHeader
+		.split(/;\s*/)
+		.find((c: string) => c.startsWith("userEmail="))
+		?.split("=")[1];
 	return (
 		<html lang="en">
 			<body>

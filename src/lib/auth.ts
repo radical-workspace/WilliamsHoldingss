@@ -7,12 +7,12 @@ export async function getCurrentUser() {
 	return user as any;
 }
 
-export function isAdminRequest() {
+export async function isAdminRequest() {
 	const adminSecret = process.env.ADMIN_SECRET;
-	const h = headers();
+	const h = await headers();
 	const provided = h.get("x-admin-secret") || h.get("X-Admin-Secret");
 	if (adminSecret && provided && provided === adminSecret) return true;
-	const cookieStore = cookies();
+	const cookieStore = await cookies();
 	const cookieAdmin = cookieStore.get("admin")?.value;
 	return cookieAdmin === "1" || cookieAdmin === "true";
 }

@@ -6,11 +6,18 @@
    - Environments: .env
 
    Creating an optimized production build ...
- ✓ Compiled successfully in 22.5s
+ ✓ Compiled successfully in 16.0s
    Linting and checking validity of types ...
 Failed to compile.
 
-src/app/api/admin/cards/[id]/reject/route.ts
-Type error: File '/workspaces/WilliamsHoldingss/src/app/api/admin/cards/[id]/reject/route.ts' is not a module.
+./src/app/api/admin/login/route.ts:10:4
+Type error: Property 'set' does not exist on type 'Promise<ReadonlyRequestCookies>'.
 
+[0m [90m  8 |[39m 	}
+ [90m  9 |[39m 	[36mconst[39m c [33m=[39m cookies()[33m;[39m
+[31m[1m>[22m[39m[90m 10 |[39m 	c[33m.[39m[36mset[39m([32m"admin"[39m[33m,[39m [32m"true"[39m[33m,[39m { httpOnly[33m:[39m [36mfalse[39m[33m,[39m path[33m:[39m [32m"/"[39m[33m,[39m sameSite[33m:[39m [32m"lax"[39m })[33m;[39m
+ [90m    |[39m 	  [31m[1m^[22m[39m
+ [90m 11 |[39m 	[36mreturn[39m [33mNextResponse[39m[33m.[39mjson({ ok[33m:[39m [36mtrue[39m })[33m;[39m
+ [90m 12 |[39m }
+ [90m 13 |[39m[0m
 Next.js build worker exited with code: 1 and signal: null

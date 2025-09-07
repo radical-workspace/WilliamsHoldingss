@@ -13,6 +13,6 @@ export async function POST(req: Request) {
 	const ok = await bcrypt.compare(password, ph);
 	if (!ok)
 		return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
-	await createUserSession(user.email);
-	return NextResponse.json({ ok: true });
+	const res = await createUserSession(user.email);
+	return res;
 }
