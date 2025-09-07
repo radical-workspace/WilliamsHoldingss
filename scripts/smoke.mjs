@@ -117,6 +117,50 @@ async function jsonFetch(path, init = {}) {
 		assert.ok(html.includes("Welcome,"), "dashboard welcome text");
 	});
 
+	// Create deposit (minimal valid payload)
+	await step("create deposit", async () => {
+		const body = {
+			asset: "BTC",
+			network: "BTC",
+			amount: 0.0001,
+			sent_to_address: "addr-demo",
+			tx_proof: "proof",
+		};
+		const { res, data } = await jsonFetch("/api/deposits", {
+			method: "POST",
+			body: JSON.stringify(body),
+			headers: { cookie: cookieJar },
+		});
+		assert.equal(res.status, 200, "deposit 200");
+		assert.ok(data?.id, "deposit id");
+	});
+
+	// Fetch balances
+	await step("balances", async () => {
+		const { res, data } = await jsonFetch(
+			"/api/balances?asset=BTC&network=BTC",
+			{ headers: { cookie: cookieJar } },
+		);
+		assert.equal(res.status, 200, "balances 200");
+		assert.ok(typeof data?.available === "number", "has available");
+	});
+
+	// Attempt withdrawal with insufficient funds (should 400 or 500 depending on error handling)
+	await step("withdraw insufficient", async () => {
+		const body = {
+			asset: "BTC",
+			network: "BTC",
+			amount: 10,
+			destination_address: "dest-demo",
+		};
+		const { res } = await jsonFetch("/api/withdrawals", {
+			method: "POST",
+			body: JSON.stringify(body),
+			headers: { cookie: cookieJar },
+		});
+		assert.ok([400, 500].includes(res.status), "withdraw expected failure status");
+	});
+
 	// Signout
 	await step("signout", async () => {
 		const { res, data } = await jsonFetch("/api/auth/signout", {
