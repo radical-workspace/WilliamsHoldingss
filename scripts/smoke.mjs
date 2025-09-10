@@ -158,7 +158,10 @@ async function jsonFetch(path, init = {}) {
 			body: JSON.stringify(body),
 			headers: { cookie: cookieJar },
 		});
-		assert.ok([400, 500].includes(res.status), "withdraw expected failure status");
+		assert.ok(
+			[400, 500].includes(res.status),
+			"withdraw expected failure status",
+		);
 	});
 
 	// Signout
