@@ -4,7 +4,7 @@ import { isAdminRequest } from "../../../../../../lib/auth";
 
 export async function POST(req: NextRequest, context: any) {
 	const { params } = context as { params: { id: string } };
-	if (!isAdminRequest())
+	if (!(await isAdminRequest()))
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	const id = params.id;
 	const body = (await req.json().catch(() => ({}))) as { adminNote?: string };

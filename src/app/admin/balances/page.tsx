@@ -4,7 +4,7 @@ import { isAdminRequest } from "@/lib/auth";
 export const dynamic = "force-dynamic";
 
 export default async function AdminBalances() {
-	if (!isAdminRequest()) {
+	if (!(await isAdminRequest())) {
 		return <p>Unauthorized. Provide X-Admin-Secret header to access.</p>;
 	}
 	const balances = await prisma.balance.findMany({

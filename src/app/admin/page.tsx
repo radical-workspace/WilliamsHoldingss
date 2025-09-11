@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
-export default function AdminHome() {
-	if (!isAdminRequest()) {
+export default async function AdminHome() {
+	if (!(await isAdminRequest())) {
 		return <p>Unauthorized.</p>;
 	}
 	return (

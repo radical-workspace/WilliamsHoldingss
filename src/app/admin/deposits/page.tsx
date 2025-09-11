@@ -11,7 +11,7 @@ export const dynamic = "force-dynamic";
 export default async function AdminDeposits({
 	searchParams,
 }: { searchParams?: Promise<{ status?: string; q?: string; page?: string }> }) {
-	if (!isAdminRequest()) {
+	if (!(await isAdminRequest())) {
 		return <p>Unauthorized. Provide X-Admin-Secret header to access.</p>;
 	}
 	const sp = (await searchParams) || {};

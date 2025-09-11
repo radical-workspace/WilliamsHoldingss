@@ -5,7 +5,7 @@ import { ClientActions } from "@/components/ClientActions";
 export const dynamic = "force-dynamic";
 
 export default async function AdminCardRequests() {
-	if (!isAdminRequest()) return <p>Unauthorized</p>;
+	if (!(await isAdminRequest())) return <p>Unauthorized</p>;
 	const items = await prisma.cardRequest.findMany({
 		orderBy: { createdAt: "desc" },
 		include: { user: true },

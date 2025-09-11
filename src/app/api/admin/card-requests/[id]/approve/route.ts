@@ -5,7 +5,7 @@ import { CARD_REQUEST_FEE_USD } from "@/lib/constants";
 
 export async function POST(_req: NextRequest, context: any) {
 	const { params } = context as { params: { id: string } };
-	if (!isAdminRequest())
+	if (!(await isAdminRequest()))
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	const { id } = params;
 	const result = await prisma.$transaction(async (tx) => {

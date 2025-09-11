@@ -4,7 +4,7 @@ import { isAdminRequest } from "@/lib/auth";
 export const runtime = "nodejs";
 
 export async function POST(_req: NextRequest, context: any) {
-	if (!isAdminRequest()) {
+	if (!(await isAdminRequest())) {
 		return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 	}
 	const { params } = context as { params: { id: string } };
