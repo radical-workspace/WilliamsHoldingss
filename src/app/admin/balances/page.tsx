@@ -30,7 +30,7 @@ export default async function AdminBalances() {
 					</tr>
 				</thead>
 				<tbody>
-					{balances.map((b) => (
+					{balances.map((b: any) => (
 						<tr key={b.id}>
 							<td>{b.user.email}</td>
 							<td>{b.asset}</td>
@@ -56,7 +56,7 @@ export default async function AdminBalances() {
 					</tr>
 				</thead>
 				<tbody>
-					{ledger.map((l) => (
+					{ledger.map((l: any) => (
 						<tr key={l.id}>
 							<td>{l.createdAt.toISOString()}</td>
 							<td>{l.user.email}</td>
