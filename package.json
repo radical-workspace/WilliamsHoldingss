@@ -14,7 +14,7 @@
     "lint:rome:fix": "rome check --apply .",
     "format": "rome format . --write",
     "images:compress": "node ./scripts/compress-images.mjs",
-    "vercel:build": "prisma generate && prisma migrate deploy && next build"
+    "vercel:build": "prisma generate && prisma db push && next build"
   },
   "dependencies": {
     "@emotion/react": "^11.11.3",
